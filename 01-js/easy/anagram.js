@@ -6,6 +6,16 @@
 
 function isAnagram(str1, str2) {
 
+  if(str1.length===str2.length){
+
+    return str1.split("").sort().join("") === str2.split("").sort().join("")
+    
+  }else{
+    return false;
+  }
+
 }
+
+console.log(isAnagram("Debit card","bad credit"))
 
 module.exports = isAnagram;

@@ -7,6 +7,14 @@
 
 function countVowels(str) {
     // Your code here
+    var vowelRegex = /[aeiou]/gi;
+    let count= str.match(vowelRegex);
+
+    return matches ? matches.length : 0;
+    
+
 }
+
+console.log(countVowels('erhello'));
 
 module.exports = countVowels;

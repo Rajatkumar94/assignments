@@ -9,5 +9,15 @@ There is no automated test for this one, this is more for you to understand time
 */
 
 function calculateTime(n) {
-    return 0.01;
+  let date = new Date().getMilliseconds();
+
+  console.log(date);
+
+  for (let i = 0; i < n; i++) {console.log("Cal")}
+
+  let date1 = new Date().getSeconds();
+
+  return date1 - date;
 }
+
+console.log(calculateTime(10));

@@ -11,7 +11,23 @@
 */
 
 class Todo {
+  constructor() {
+    this.Todo = [];
+  }
 
+  add(todo) {
+    this.Todo.push(todo);
+  }
+
+  get(indexOfTodo) {
+    return this.Todo[indexOfTodo - 1];
+  }
 }
+
+let list = new Todo();
+
+list.add("buy milk");
+
+console.log(list.get(1));
 
 module.exports = Todo;
