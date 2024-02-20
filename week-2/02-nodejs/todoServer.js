@@ -39,11 +39,113 @@
 
   Testing the server - run `npm run test-todoServer` command in terminal
  */
-  const express = require('express');
-  const bodyParser = require('body-parser');
-  
-  const app = express();
-  
-  app.use(bodyParser.json());
-  
-  module.exports = app;
+const express = require("express");
+const bodyParser = require("body-parser");
+const app = express();
+const { v4: uuidv4 } = require("uuid");
+const fs = require("fs").promises;
+
+const todoServer = "todos.json";
+
+const port = process.env.PORT || 4000;
+app.use(bodyParser.json());
+
+async function readFromServer() {
+  try {
+    const data = await fs.readFile(todoServer, "utf8");
+    return JSON.parse(data);
+  } catch (err) {
+    console.error(err);
+    return []; // Return an empty array in case of an error or if the file doesn't exist yet.
+  }
+}
+
+async function writeToServer(data) {
+  await fs.writeFile(todoServer, JSON.stringify(data), "utf8");
+}
+
+app.get("/todos", async (req, res) => {
+  try {
+    const todos = await readFromServer();
+    res.json(todos);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+app.get("/todos/:id", async (req, res) => {
+  readFromServer()
+    .then((response) => {
+      // console.log(response)
+      response.map((todo) => {
+        console.log(todo);
+        if (todo.id === req.params.id) {
+          res.json(todo);
+        }
+      });
+    })
+    .catch((err) => res.status(500).json({ error: "Something went wrong" }));
+});
+
+app.post("/todos", async (req, res) => {
+  const { title, description } = req.body;
+  const id = uuidv4();
+  const todo = {
+    id,
+    title,
+    description,
+  };
+  try {
+    const storeTodos = await readFromServer();
+    storeTodos.push(todo);
+    await writeToServer(storeTodos);
+    res.status(200).json({ to });
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+app.put("/todos/:id", async (req, res) => {
+  const { title, description } = req.body;
+  const id = req.params.id;
+  const updatedtodo = { id, title, description };
+  readFromServer()
+    .then((response) => {
+      const indexToUpdate = response.findIndex((todo) => todo.id === id);
+      console.log(indexToUpdate);
+      if (indexToUpdate !== -1) {
+        response[indexToUpdate] = {
+          ...response[indexToUpdate],
+          ...updatedtodo,
+        };
+      }
+      writeToServer(response);
+      res.status(200).json({ success: true, todo: updatedtodo });
+    })
+    .catch((err) => res.status(500).json({ error: "Something went wrong" }));
+});
+
+app.delete("/todos/:id", async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const todos = await readFromServer();
+
+    const deleteIndex = todos.findIndex((todo) => todo.id === id);
+
+    if (deleteIndex !== -1) {
+      var newtodo = todos.filter((todo) => todo.id !== id);
+    }
+    await writeToServer(newtodo);
+    res.status(200).json({success: true,json: newtodo})
+  } catch (err) {
+    res.status(500).json({error: "Something went wrong"});
+  }
+});
+
+app.listen(port, () => {
+  console.log("listening on port " + port);
+});
+
+module.exports = app;
